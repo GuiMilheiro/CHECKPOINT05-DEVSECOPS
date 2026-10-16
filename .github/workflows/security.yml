@@ -20,17 +20,14 @@ jobs:
   semgrep:
     name: Semgrep SAST Scan
     runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:latest
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
 
       - name: Rodar Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: >-
-            p/default
-            p/javascript
-            p/nodejs
+        run: semgrep scan --config=auto
 
   # Caso o seu professor também exija o 3º job (Scan de Imagem Docker / CVE Crítico), 
   # basta descomentar as linhas abaixo:
