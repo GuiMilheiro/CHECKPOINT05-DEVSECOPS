@@ -1,0 +1,51 @@
+name: Security Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  gitleaks:
+    name: Gitleaks Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rodar Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  semgrep:
+    name: Semgrep SAST Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Rodar Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/default
+            p/javascript
+            p/nodejs
+
+  # Caso o seu professor também exija o 3º job (Scan de Imagem Docker / CVE Crítico), 
+  # basta descomentar as linhas abaixo:
+  # trivy:
+  #   name: Trivy Image Scan
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout do código
+  #       uses: actions/checkout@v4
+  #     - name: Build da imagem Docker
+  #       run: docker build -t site-arcanjosa:latest .
+  #     - name: Rodar Trivy para buscar CVEs Críticos
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         image-ref: 'site-arcanjosa:latest'
+  #         format: 'table'
+  #         exit-code: '1'
+  #         severity: 'CRITICAL'
